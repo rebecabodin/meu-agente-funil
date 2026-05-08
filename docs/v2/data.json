@@ -9,6 +9,91 @@
   "oportunidades_email": 32,
   "potencial_estimado": 2071.0,
   "gap_onboarding": 47,
+  "taxa_onboarding": 77.9,
+  "recuperacao_lista": [
+    {
+      "NOME": "Celio Venda da Silva",
+      "TELEFONE": ""
+    },
+    {
+      "NOME": "Claudio Henrique de Souza",
+      "TELEFONE": "5534996587118"
+    },
+    {
+      "NOME": "Tiago Karaja",
+      "TELEFONE": ""
+    },
+    {
+      "NOME": "Omar Pérez",
+      "TELEFONE": "5555919817108"
+    },
+    {
+      "NOME": "Valdenir da Silva",
+      "TELEFONE": "5534996587118"
+    },
+    {
+      "NOME": "Guilherme Kellermann",
+      "TELEFONE": "5551981640205"
+    },
+    {
+      "NOME": "Leonardo Rafael de Carvalho Matheus",
+      "TELEFONE": "5542999785671"
+    },
+    {
+      "NOME": "Josias de Arruda",
+      "TELEFONE": "5512992206808"
+    },
+    {
+      "NOME": "Henrique Carlos Henrique Lemos de Souza",
+      "TELEFONE": "5511939062660"
+    },
+    {
+      "NOME": "Alcimar Rodrigues",
+      "TELEFONE": "5528999559070"
+    }
+  ],
+  "onboarding_lista": [
+    {
+      "NOME": "Pedro Ângelo",
+      "TELEFONE": "5511991766210"
+    },
+    {
+      "NOME": "Renan Cesar Calado",
+      "TELEFONE": "5517996326605"
+    },
+    {
+      "NOME": "Jose Ricardo Assis de Oliveira",
+      "TELEFONE": "5522992585846"
+    },
+    {
+      "NOME": "Fernando Amico",
+      "TELEFONE": "5551999886269"
+    },
+    {
+      "NOME": "Anderson Marinho Oliveira",
+      "TELEFONE": "5527997840026"
+    },
+    {
+      "NOME": "Everson Passini",
+      "TELEFONE": "5519999747579"
+    },
+    {
+      "NOME": "Edison Felipe Russi",
+      "TELEFONE": "5548984382169"
+    },
+    {
+      "NOME": "André Luiz",
+      "TELEFONE": "5542999631309"
+    },
+    {
+      "NOME": "José Edvaldo",
+      "TELEFONE": "5582999650894"
+    },
+    {
+      "NOME": "João Abel Alves Junior",
+      "TELEFONE": "5542999961210"
+    }
+  ],
   "compra_aprovada": {
     "total": 213,
     "enviados": 204,

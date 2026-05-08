@@ -167,6 +167,8 @@ def calcular_metricas():
         env_rec = sem_tel_rec = repetidos = pend_rec = 0
 
     total_rec = len(df_recup_raw)
+    recuperacao_lista = recuperacao_pendentes[['NOME', 'TELEFONE']].head(10).to_dict('records')
+    onboarding_lista = onboarding_pendentes[['NOME', 'TELEFONE']].head(10).to_dict('records')
     recuperacao_lista = recuperacao_pendentes[["NOME", "TELEFONE"]].head(10).to_dict("records")
     onboarding_lista = onboarding_pendentes[["NOME", "TELEFONE"]].head(10).to_dict("records")
 
@@ -182,6 +184,9 @@ def calcular_metricas():
         "oportunidades_email": Z_sales,
         "potencial_estimado": round(potencial, 2),
         "gap_onboarding": gap_onboarding,
+        "taxa_onboarding": round(((len(df_compra) - gap_onboarding) / len(df_compra) * 100), 1) if len(df_compra) > 0 else 0,
+        "recuperacao_lista": recuperacao_lista,
+        "onboarding_lista": onboarding_lista,
         "compra_aprovada": {
             "total": len(df_compra),
             "enviados": env_compra,
