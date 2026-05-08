@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore — Agente Analista de Funil
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Credenciais e Segredos (NUNCA versionar) ──────────────────────────────────
+.env
+.env.local
+.env.*.local
+credentials.json
+*.key
+*.pem
+service_account*.json
+
+# ── Dados Sensíveis (ficam na planilha Google Sheets) ─────────────────────────
+*.csv
+*.xlsx
+*.xls
+cruzamento_*.csv
+
+# ── Dados gerados localmente (o GitHub Actions publica a versão oficial) ───────
+# Use `git add --force docs/data.json` apenas via CI/CD
+docs/data.json
+
+# ── Logs (gerados em runtime, podem conter dados de clientes) ─────────────────
+*.log
+*.txt
+app_log.txt
+insights_log.txt
+
+# ── Ambiente Python ───────────────────────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# ── Node / Next.js (dashboard-web) ───────────────────────────────────────────
+dashboard-web/node_modules/
+dashboard-web/.next/
+dashboard-web/.env
+dashboard-web/.env.local
+
+# ── Arquivos temporários e de teste ──────────────────────────────────────────
+scratch/
+test_*.py
+*.tmp
+
+# ── Sistema Operacional ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

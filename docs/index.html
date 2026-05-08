@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📊 Painel Analítico | Mundo dos Elétricos</title>
+  <meta name="description" content="Dashboard analítico de funil de vendas — Mundo dos Elétricos" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   #21262d;
+      --green:    #00ff88;
+      --gold:     #ffd700;
+      --blue:     #58a6ff;
+      --red:      #ff4b4b;
+      --muted:    #8b949e;
+      --text:     #e6edf3;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-title { display: flex; align-items: center; gap: 12px; }
+    .header-title h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .header-title span { font-size: 1.8rem; }
+    .badge-live {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,255,136,.1); border: 1px solid rgba(0,255,136,.3);
+      border-radius: 20px; padding: 4px 12px; font-size: .75rem;
+      color: var(--green); font-weight: 600;
+    }
+    .badge-live::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: .3; }
+    }
+    .updated-at { font-size: .75rem; color: var(--muted); }
+
+    /* ── Cards KPI ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: transform .2s, border-color .2s;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #30363d; }
+    .card-label { font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+    .card-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .card-sub { font-size: .78rem; color: var(--muted); margin-top: 6px; }
+
+    .card--green { border-left: 3px solid var(--green); }
+    .card--green .card-value { color: var(--green); }
+    .card--gold  { border-left: 3px solid var(--gold); }
+    .card--gold  .card-value { color: var(--gold); }
+    .card--blue  { border-left: 3px solid var(--blue); }
+    .card--blue  .card-value { color: var(--blue); }
+    .card--red   { border-left: 3px solid var(--red); }
+    .card--red   .card-value { color: var(--red); }
+
+    /* ── Seções ── */
+    .section-title {
+      font-size: .85rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── Tracking cards ── */
+    .tracking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .tracking-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .tracking-card h3 { font-size: .9rem; font-weight: 600; margin-bottom: 16px; }
+    .stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: .82rem; color: var(--muted); }
+    .stat-value { font-size: .9rem; font-weight: 700; }
+    .stat-value.gold  { color: var(--gold); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red   { color: var(--red); }
+    .stat-value.blue  { color: var(--blue); }
+    .stat-value.muted { color: var(--muted); }
+
+    /* ── Plano de Ação ── */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .action-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .action-card h3 { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+    .action-desc { font-size: .78rem; color: var(--muted); margin-bottom: 12px; }
+    .potencial-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,215,0,.1); border: 1px solid rgba(255,215,0,.3);
+      border-radius: 8px; padding: 6px 12px;
+      color: var(--gold); font-size: .82rem; font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .big-number {
+      font-size: 2.8rem; font-weight: 800;
+      color: var(--gold); line-height: 1; margin-bottom: 4px;
+    }
+    .big-sub { font-size: .78rem; color: var(--muted); }
+
+    /* ── Skeleton loading ── */
+    .skeleton { background: linear-gradient(90deg,#21262d 25%,#30363d 50%,#21262d 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── Footer ── */
+    footer { text-align: center; color: var(--muted); font-size: .72rem; margin-top: 32px; }
+    footer a { color: var(--muted); text-decoration: none; }
+
+    /* ── Responsividade ── */
+    @media (max-width: 480px) {
+      .card-value { font-size: 1.6rem; }
+      .big-number  { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-title">
+      <span>📊</span>
+      <h1>Painel Analítico · Mundo dos Elétricos</h1>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <span class="badge-live">AO VIVO</span>
+      <span class="updated-at" id="updated-at">Carregando...</span>
+    </div>
+  </header>
+
+  <!-- ── KPIs ── -->
+  <p class="section-title">💹 Visão Geral</p>
+  <div class="kpi-grid">
+    <div class="card card--gold">
+      <div class="card-label">💵 Faturamento Total</div>
+      <div class="card-value" id="faturamento">—</div>
+      <div class="card-sub">Coluna: Valor oferta</div>
+    </div>
+    <div class="card card--blue">
+      <div class="card-label">✅ Vendas Aprovadas</div>
+      <div class="card-value" id="vendas-aprovadas">—</div>
+      <div class="card-sub">Compradores únicos</div>
+    </div>
+    <div class="card card--green">
+      <div class="card-label">💰 Vendas Recuperadas</div>
+      <div class="card-value" id="vendas-recuperadas">—</div>
+      <div class="card-sub">Via cruzamento Nome/Tel/Email</div>
+    </div>
+    <div class="card card--red">
+      <div class="card-label">🔥 Oportunidades</div>
+      <div class="card-value" id="oportunidades">—</div>
+      <div class="card-sub" id="opor-sub">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">🤝 Gap de Onboarding</div>
+      <div class="card-value" id="gap-onboarding" style="color:var(--blue)">—</div>
+      <div class="card-sub">Pagaram · Não estão no grupo</div>
+    </div>
+  </div>
+
+  <!-- ── Acompanhamento de Envios ── -->
+  <p class="section-title">💬 Acompanhamento de Envios</p>
+  <div class="tracking-grid">
+    <div class="tracking-card">
+      <h3>📈 Compra Aprovada</h3>
+      <div class="stat-row">
+        <span class="stat-label">Total</span>
+        <span class="stat-value" id="ca-total">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">✅ Enviados</span>
+        <span class="stat-value gold" id="ca-enviados">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">🚫 Sem Tel / Inválido</span>
+        <span class="stat-value red" id="ca-sem-tel">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">⏳ Pendentes</span>
+        <span class="stat-value muted" id="ca-pendentes">—</span>
+      </div>
+    </div>
+    <div class="tracking-card">
+      <h3>📈 Recuperação de Vendas</h3>
+      <div class="stat-row">
+        <span class="stat-label">Total</span>
+        <span class="stat-value" id="rec-total">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">✅ Enviados</span>
+        <span class="stat-value gold" id="rec-enviados">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">💰 Recuperadas</span>
+        <span class="stat-value green" id="rec-recuperadas">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">🚫 Sem Tel</span>
+        <span class="stat-value red" id="rec-sem-tel">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">🔄 Repetidos/Duplicados</span>
+        <span class="stat-value muted" id="rec-repetidos">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">⏳ Pendentes</span>
+        <span class="stat-value muted" id="rec-pendentes">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Plano de Ação ── -->
+  <p class="section-title">📋 Plano de Ação (Resgates)</p>
+  <div class="action-grid">
+    <div class="action-card">
+      <h3>📉 Lista de Resgate: Checkout Abandonado</h3>
+      <div class="action-desc">Leads que iniciaram a compra mas ainda não pagaram.</div>
+      <div class="big-number" id="plano-oportunidades">—</div>
+      <div class="big-sub" id="plano-sub">—</div>
+      <br />
+      <div class="potencial-badge">💸 Potencial estimado: <span id="potencial">—</span></div>
+    </div>
+    <div class="action-card">
+      <h3>🤝 Resgate de Onboarding</h3>
+      <div class="action-desc">Clientes que já pagaram mas não entraram no grupo.</div>
+      <div class="big-number" style="color:var(--blue)" id="plano-gap">—</div>
+      <div class="big-sub">Clientes pendentes de boas-vindas</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Dados atualizados automaticamente via Google Sheets · GitHub Actions</p>
+    <p style="margin-top:4px">Atualização a cada 30 minutos · <a href="https://github.com" target="_blank">Ver código no GitHub</a></p>
+  </footer>
+
+  <script>
+    function fmtBRL(v) {
+      return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch('data.json?_=' + Date.now());
+        if (!res.ok) throw new Error('Falha ao carregar data.json');
+        const d = await res.json();
+
+        document.getElementById('updated-at').textContent = 'Atualizado: ' + d.updated_at;
+        document.getElementById('faturamento').textContent     = fmtBRL(d.faturamento);
+        document.getElementById('vendas-aprovadas').textContent  = d.vendas_aprovadas;
+        document.getElementById('vendas-recuperadas').textContent = d.vendas_recuperadas;
+        document.getElementById('oportunidades').textContent    = d.oportunidades;
+        document.getElementById('opor-sub').textContent         =
+          d.oportunidades_whatsapp + ' WhatsApp · ' + d.oportunidades_email + ' E-mail';
+        document.getElementById('gap-onboarding').textContent   = d.gap_onboarding;
+
+        // Compra Aprovada
+        const ca = d.compra_aprovada;
+        document.getElementById('ca-total').textContent     = ca.total;
+        document.getElementById('ca-enviados').textContent  = ca.enviados;
+        document.getElementById('ca-sem-tel').textContent   = ca.sem_tel;
+        document.getElementById('ca-pendentes').textContent = ca.pendentes;
+
+        // Recuperação
+        const rec = d.recuperacao;
+        document.getElementById('rec-total').textContent       = rec.total;
+        document.getElementById('rec-enviados').textContent    = rec.enviados;
+        document.getElementById('rec-recuperadas').textContent = rec.recuperadas;
+        document.getElementById('rec-sem-tel').textContent     = rec.sem_tel;
+        document.getElementById('rec-repetidos').textContent   = rec.repetidos;
+        document.getElementById('rec-pendentes').textContent   = rec.pendentes;
+
+        // Plano de Ação
+        document.getElementById('plano-oportunidades').textContent = d.oportunidades + ' Oportunidades';
+        document.getElementById('plano-sub').textContent =
+          d.oportunidades_whatsapp + ' WhatsApp · ' + d.oportunidades_email + ' E-mail';
+        document.getElementById('potencial').textContent =
+          fmtBRL(d.potencial_estimado) + ' (ticket mín. ' + fmtBRL(d.ticket_minimo) + ')';
+        document.getElementById('plano-gap').textContent = d.gap_onboarding;
+
+      } catch (e) {
+        document.getElementById('updated-at').textContent = '⚠️ Erro ao carregar dados';
+        console.error(e);
+      }
+    }
+
+    loadData();
+    // Auto-refresh a cada 5 minutos no browser
+    setInterval(loadData, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
