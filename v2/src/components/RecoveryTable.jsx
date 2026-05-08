@@ -1,68 +1,65 @@
 import React from 'react';
-import { Phone, User, ExternalLink, XCircle } from 'lucide-react';
+import { ExternalLink, User, Phone, AlertCircle } from 'lucide-react';
 
 export const RecoveryTable = ({ data, type = 'recovery' }) => {
   return (
-    <div className="bg-brand-card/30 border border-white/5 rounded-[2rem] overflow-hidden">
+    <div className="glass-panel overflow-hidden">
       <table className="w-full text-left border-collapse">
-        <thead className="bg-white/5">
-          <tr>
-            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40 w-16">Nº</th>
-            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Nome</th>
-            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Telefone</th>
-            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40 text-right">Ação</th>
+        <thead>
+          <tr className="bg-white/5">
+            <th className="px-8 py-5 text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] w-16 text-center">Nº</th>
+            <th className="px-8 py-5 text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">Identificação do Lead</th>
+            <th className="px-8 py-5 text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">Contato</th>
+            <th className="px-8 py-5 text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] text-right">Ação</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
-          {data.map((row, idx) => {
-            const hasPhone = row.TELEFONE && row.TELEFONE.trim() !== "" && row.TELEFONE.toLowerCase() !== "sem telefone";
-            
-            return (
-              <tr key={idx} className="hover:bg-white/[0.02] transition-colors group">
-                <td className="px-6 py-5 text-sm font-bold text-white/20">{idx + 1}</td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-brand-accent transition-colors">
-                      <User size={14} />
-                    </div>
-                    <span className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">{row.NOME}</span>
+        <tbody className="divide-y divide-brand-border">
+          {data && data.length > 0 ? data.map((item, index) => (
+            <tr key={index} className="group hover:bg-white/[0.02] transition-colors">
+              <td className="px-8 py-6 text-xs font-bold text-brand-muted text-center opacity-30">{index + 1}</td>
+              <td className="px-8 py-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-brand-card flex items-center justify-center text-brand-muted border border-brand-border group-hover:border-brand-accent/20 transition-all">
+                    <User size={16} />
                   </div>
-                </td>
-                <td className="px-6 py-5">
-                  {hasPhone ? (
-                    <div className="flex items-center gap-2 text-sm font-medium text-white/60">
-                      <Phone size={12} className="text-brand-teal" />
-                      {row.TELEFONE}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm font-black text-red-500 italic">
-                      <XCircle size={14} />
-                      Sem Telefone
-                    </div>
-                  )}
-                </td>
-                <td className="px-6 py-5 text-right">
-                  <button 
-                    disabled={!hasPhone}
-                    className={`p-2 rounded-xl transition-all ${
-                      hasPhone 
-                      ? 'bg-brand-accent/10 text-brand-accent hover:bg-brand-accent hover:text-white cursor-pointer' 
-                      : 'text-white/5 cursor-not-allowed'
-                    }`}
-                  >
-                    <ExternalLink size={16} />
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+                  <span className="text-sm font-bold text-white tracking-tight">{item.NOME}</span>
+                </div>
+              </td>
+              <td className="px-8 py-6">
+                {item.TELEFONE === 'Sem Telefone' ? (
+                  <div className="flex items-center gap-2 text-red-400 italic">
+                    <AlertCircle size={14} />
+                    <span className="text-xs font-medium">Sem WhatsApp</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 text-brand-muted group-hover:text-brand-accent transition-colors">
+                    <Phone size={14} />
+                    <span className="text-xs font-bold tracking-tighter">{item.TELEFONE}</span>
+                  </div>
+                )}
+              </td>
+              <td className="px-8 py-6 text-right">
+                <button 
+                  disabled={item.TELEFONE === 'Sem Telefone'}
+                  className={`p-3 rounded-xl transition-all ${
+                    item.TELEFONE === 'Sem Telefone' 
+                      ? 'opacity-20 cursor-not-allowed text-brand-muted' 
+                      : 'bg-brand-accent/10 text-brand-accent hover:bg-brand-accent hover:text-white shadow-lg shadow-brand-accent/0 hover:shadow-brand-accent/20'
+                  }`}
+                >
+                  <ExternalLink size={16} />
+                </button>
+              </td>
+            </tr>
+          )) : (
+            <tr>
+              <td colSpan="4" className="px-8 py-20 text-center text-brand-muted text-xs font-bold uppercase tracking-widest opacity-20">
+                Nenhuma pendência encontrada no momento.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
-      {data.length === 0 && (
-        <div className="p-10 text-center text-white/20 font-bold uppercase tracking-widest text-xs">
-          Nenhum registro pendente
-        </div>
-      )}
     </div>
   );
 };

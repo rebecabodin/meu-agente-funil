@@ -1,5 +1,6 @@
 import React from 'react';
-import { DollarSign, Target, TrendingUp, Users, CheckCircle2, MessageSquare, BarChart3, ArrowUpRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { DollarSign, Target, TrendingUp, Users, CheckCircle2, MessageSquare, BarChart3, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { StatsCard } from './StatsCard';
 import { FunnelChart } from './FunnelChart';
 import { RecoveryTable } from './RecoveryTable';
@@ -7,25 +8,28 @@ import { RecoveryTable } from './RecoveryTable';
 export const OperationalView = ({ data }) => {
   const funnelData = [
     { name: 'Compraram', value: data.vendas_aprovadas },
-    { name: 'No Grupo', value: data.vendas_aprovadas - data.onboarding_gap },
+    { name: 'Onboarding', value: data.vendas_aprovadas - data.onboarding_gap },
   ];
 
   return (
-    <div className="flex flex-col gap-8 animate-in fade-in duration-700">
+    <div className="flex flex-col gap-10 pb-20">
       
-      {/* Header Profissional */}
-      <div className="flex flex-col gap-1 border-b border-white/5 pb-6">
-        <h2 className="text-xl font-bold tracking-tight text-white">Mundo dos Elétricos</h2>
-        <p className="text-xs text-muted flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          Inteligência de Operação · Atualizado em {data.updated_at}
-        </p>
+      {/* 👋 Header de Saudação */}
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-1">Visão Operacional</h2>
+          <p className="text-brand-muted text-[10px] font-black uppercase tracking-[0.4em]">Mundo dos Elétricos · Controle de Funil</p>
+        </div>
+        <div className="bg-brand-accent/5 border border-brand-accent/20 px-6 py-3 rounded-[2rem] flex items-center gap-3">
+          <ShieldCheck size={16} className="text-brand-accent" />
+          <span className="text-[10px] font-black text-white uppercase tracking-widest">Sincronização 100% Segura</span>
+        </div>
       </div>
 
-      {/* Grid de KPIs - Dados Reais */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 📊 Grid de KPIs Premium */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard 
-          title="Faturamento Bruto" 
+          title="Receita Real (Sheets)" 
           value={`R$ ${data.faturamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
           icon={DollarSign}
           color="blue"
@@ -37,82 +41,87 @@ export const OperationalView = ({ data }) => {
           color="green"
         />
         <StatsCard 
-          title="Checkout Abandonado" 
+          title="Fuga no Checkout" 
           value={data.oportunidades}
           icon={Users}
           color="slate"
-          subValue={`${data.leads_whatsapp} via WhatsApp | ${data.leads_email} via E-mail`}
+          subValue={`${data.leads_whatsapp} WhatsApp | ${data.leads_email} E-mail`}
         />
         <StatsCard 
-          title="Recuperação de Vendas" 
+          title="Vendas Recuperadas" 
           value={data.vendas_recuperadas}
           icon={TrendingUp}
           color="blue"
         />
       </div>
 
-      {/* Painel de Monitoramento de Funil */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* 🧩 Painel Central: Funil e Automação */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Gráfico de Conversão */}
-        <div className="lg:col-span-2 glass-card p-8">
-          <div className="flex justify-between items-center mb-8">
+        <div className="lg:col-span-8 glass-panel p-10 relative overflow-hidden group">
+          <div className="absolute -right-20 -top-20 w-64 h-64 bg-brand-accent/5 rounded-full blur-[80px] group-hover:bg-brand-accent/10 transition-all duration-700" />
+          <div className="flex justify-between items-center mb-12 relative z-10">
             <div>
-              <h4 className="text-sm font-semibold text-white">Eficiência de Onboarding</h4>
-              <p className="text-[10px] text-muted">Aderência dos alunos ao grupo de suporte</p>
+              <h4 className="text-lg font-black text-white italic uppercase tracking-tighter">Eficiência de Onboarding</h4>
+              <p className="text-[10px] text-brand-muted font-bold uppercase tracking-widest">Aderência de alunos ao grupo VIP</p>
             </div>
-            <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold text-accent">
-              {data.taxa_onboarding}% TAXA
+            <div className="bg-emerald-500/10 border border-emerald-500/20 px-5 py-2 rounded-2xl text-[10px] font-black text-emerald-400 uppercase tracking-tighter">
+              {data.taxa_onboarding}% TAXA DE ENTRADA
             </div>
           </div>
-          <div className="h-[240px]">
+          <div className="h-[280px] relative z-10">
             <FunnelChart data={funnelData} />
           </div>
         </div>
 
-        {/* Status de Envios (Sóbrio) */}
-        <div className="glass-card p-8 flex flex-col gap-6">
-          <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-            <MessageSquare size={16} className="text-muted" /> Status de Automação
+        {/* Status de Automação */}
+        <div className="lg:col-span-4 glass-panel p-10 flex flex-col gap-10">
+          <h4 className="text-sm font-black text-white uppercase tracking-tighter flex items-center gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-ping" />
+            Status das Automações
           </h4>
           
-          <div className="space-y-6">
-            <StatusRow label="Enviados (Vendas)" value={data.status_compra.enviados} total={data.status_compra.total} color="bg-emerald-500" />
-            <StatusRow label="Enviados (Resgates)" value={data.status_recup.enviados} total={data.status_recup.total} color="bg-blue-500" />
-            <div className="pt-4 grid grid-cols-2 gap-4 border-t border-white/5">
+          <div className="space-y-8">
+            <StatusRow label="Entregas (Novos Alunos)" value={data.status_compra.enviados} total={data.status_compra.total} color="bg-emerald-500" />
+            <StatusRow label="Resgates (Checkout)" value={data.status_recup.enviados} total={data.status_recup.total} color="bg-brand-accent" />
+            
+            <div className="pt-8 grid grid-cols-2 gap-8 border-t border-brand-border">
               <div>
-                <p className="text-[9px] text-muted uppercase font-bold">Sem Telefone</p>
-                <p className="text-lg font-bold text-red-400">{data.status_compra.sem_tel + data.status_recup.sem_tel}</p>
+                <p className="text-[10px] text-brand-muted uppercase font-black tracking-tighter mb-1">Sem WhatsApp</p>
+                <p className="text-2xl font-black text-red-500 italic">{data.status_compra.sem_tel + data.status_recup.sem_tel}</p>
               </div>
               <div>
-                <p className="text-[9px] text-muted uppercase font-bold">Pendentes</p>
-                <p className="text-lg font-bold text-warning">{data.status_compra.pendentes}</p>
+                <p className="text-[10px] text-brand-muted uppercase font-black tracking-tighter mb-1">Pendentes</p>
+                <p className="text-2xl font-black text-brand-accent italic">{data.status_compra.pendentes}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Seção de Resgates Críticos */}
+      {/* ⚠️ Plano de Ação (Lists) */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-2">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-6">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-tight">Checkout Abandonado</h3>
-              <p className="text-[10px] text-muted">Potencial estimado: R$ {data.potencial_estimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              <h3 className="text-lg font-black text-white italic uppercase tracking-tighter leading-none mb-1">Checkout Abandonado</h3>
+              <div className="flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+                <BarChart3 size={12} /> Potencial Estimado: R$ {data.potencial_estimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
             </div>
-            <BarChart3 size={16} className="text-muted opacity-20" />
+            <div className="bg-brand-card p-3 rounded-2xl border border-brand-border"><Users size={20} className="text-brand-muted" /></div>
           </div>
           <RecoveryTable data={data.recuperacao_lista} />
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-2">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-6">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-tight">Pendentes de Onboarding</h3>
-              <p className="text-[10px] text-muted">{data.onboarding_gap} alunos fora do grupo oficial</p>
+              <h3 className="text-lg font-black text-white italic uppercase tracking-tighter leading-none mb-1">Onboarding Pendente</h3>
+              <p className="text-[10px] text-brand-muted font-bold uppercase tracking-widest mt-1">{data.onboarding_gap} alunos fora do grupo oficial</p>
             </div>
-            <ArrowUpRight size={16} className="text-muted opacity-20" />
+            <div className="bg-brand-card p-3 rounded-2xl border border-brand-border"><ArrowUpRight size={20} className="text-brand-muted" /></div>
           </div>
           <RecoveryTable data={data.onboarding_lista} type="onboarding" />
         </div>
@@ -124,15 +133,17 @@ export const OperationalView = ({ data }) => {
 const StatusRow = ({ label, value, total, color }) => {
   const percent = Math.min(100, Math.max(0, (value / total) * 100)) || 0;
   return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-[10px] font-bold uppercase text-muted">
-        <span>{label}</span>
-        <span>{value} / {total}</span>
+    <div className="space-y-3">
+      <div className="flex justify-between text-[11px] font-black uppercase tracking-tighter">
+        <span className="text-brand-muted">{label}</span>
+        <span className="text-white">{value} / {total}</span>
       </div>
-      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-        <div 
-          className={`h-full ${color} rounded-full transition-all duration-1000`} 
-          style={{ width: `${percent}%` }}
+      <div className="h-2 w-full bg-brand-bg rounded-full p-0.5 border border-brand-border">
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: `${percent}%` }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className={`h-full ${color} rounded-full shadow-[0_0_10px_rgba(14,165,233,0.3)]`} 
         />
       </div>
     </div>
