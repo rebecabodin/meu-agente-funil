@@ -1,37 +1,51 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-@theme {
-  --color-brand-bg: #0d0d1f;
-  --color-brand-card: #15152e;
-  --color-brand-accent: #6366f1;
-  --color-brand-purple: #8b5cf6;
-  --color-brand-blue: #0ea5e9;
-  --color-brand-teal: #14b8a6;
-  --color-brand-pink: #d946ef;
-  --color-brand-gold: #fccb00;
-  --color-brand-success: #22c55e;
+:root {
+  --bg-main: #020617;
+  --bg-card: #0f172a;
+  --border-card: rgba(255, 255, 255, 0.05);
+  --accent: #38bdf8; /* Cyan moderno */
+  --accent-glow: rgba(56, 189, 248, 0.15);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
 
-@layer base {
-  body {
-    @apply bg-brand-bg text-white font-sans antialiased;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-brand-card border border-white/5 rounded-[2rem] shadow-2xl;
-  }
-  
-  .glass-sidebar {
-    @apply bg-[#090916] border-r border-white/5;
-  }
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
 
-  .nav-item-active {
-    @apply bg-brand-accent/20 border-l-4 border-brand-accent text-white shadow-[0_0_20px_rgba(99,102,241,0.2)];
-  }
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-accent to-brand-purple;
-  }
+.glass-card:hover {
+  border-color: rgba(56, 189, 248, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+
+.text-gradient {
+  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
