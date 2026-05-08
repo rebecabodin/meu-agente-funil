@@ -7,13 +7,13 @@ import { RecoveryTable } from './RecoveryTable';
 export const OperationalView = ({ data }) => {
   const funnelData = [
     { name: 'Compraram', value: data.vendas_aprovadas },
-    { name: 'Entraram no Grupo', value: data.vendas_aprovadas - data.gargalos.onboarding_gap },
+    { name: 'Entraram no Grupo', value: data.vendas_aprovadas - data.onboarding_gap },
   ];
 
   return (
     <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
-      {/* Top Metrics - Mirroring Streamlit Print */}
+      {/* Top Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard 
           title="Faturamento Total" 
@@ -42,7 +42,7 @@ export const OperationalView = ({ data }) => {
         />
       </div>
 
-      {/* Acompanhamento de Envios - Identical Logic to Print */}
+      {/* Acompanhamento de Envios */}
       <section>
         <h3 className="text-white text-xs font-black uppercase tracking-[0.4em] mb-6 opacity-30 flex items-center gap-2">
           <MessageSquare size={14} className="text-brand-accent" /> Acompanhamento de Envios
@@ -127,7 +127,7 @@ export const OperationalView = ({ data }) => {
           <div className="space-y-4">
             <div className="px-4">
               <h4 className="text-white font-black text-sm uppercase mb-1">Lista de Resgate: Checkout Abandonado</h4>
-              <p className="text-white/30 text-[10px] uppercase font-bold tracking-widest mb-2">Total: {data.oportunidades} Oportunidades ({data.leads_whatsapp} WhatsApp | {data.leads_email} E-mail)</p>
+              <p className="text-white/30 text-[10px] uppercase font-bold tracking-widest mb-2">Total: {data.oportunidades} Oportunidades ( {data.leads_whatsapp} WhatsApp | {data.leads_email} E-mail)</p>
               <div className="flex items-center gap-2 text-brand-success font-black text-xs">
                  <Zap size={14} /> Potencial estimado: R$ {data.potencial_estimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
@@ -138,7 +138,7 @@ export const OperationalView = ({ data }) => {
           <div className="space-y-4">
             <div className="px-4">
               <h4 className="text-white font-black text-sm uppercase mb-1">Resgate de Onboarding (Entrada no Grupo)</h4>
-              <p className="text-white/30 text-[10px] uppercase font-bold tracking-widest mb-2">Total: {data.gargalos.onboarding_gap} Clientes Pendentes</p>
+              <p className="text-white/30 text-[10px] uppercase font-bold tracking-widest mb-2">Total: {data.onboarding_gap} Clientes Pendentes</p>
             </div>
             <RecoveryTable data={data.onboarding_lista} type="onboarding" />
           </div>
