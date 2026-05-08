@@ -1,0 +1,26 @@
+{
+  "updated_at": "08/05/2026 01:49 UTC",
+  "faturamento": 4381.0,
+  "ticket_minimo": 19.0,
+  "vendas_aprovadas": 213,
+  "vendas_recuperadas": 25,
+  "oportunidades": 109,
+  "oportunidades_whatsapp": 77,
+  "oportunidades_email": 32,
+  "potencial_estimado": 2071.0,
+  "gap_onboarding": 47,
+  "compra_aprovada": {
+    "total": 213,
+    "enviados": 204,
+    "sem_tel": 2,
+    "pendentes": 7
+  },
+  "recuperacao": {
+    "total": 137,
+    "enviados": 100,
+    "recuperadas": 25,
+    "sem_tel": 35,
+    "repetidos": 2,
+    "pendentes": 0
+  }
+}

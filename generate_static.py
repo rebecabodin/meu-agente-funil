@@ -167,6 +167,8 @@ def calcular_metricas():
         env_rec = sem_tel_rec = repetidos = pend_rec = 0
 
     total_rec = len(df_recup_raw)
+    recuperacao_lista = recuperacao_pendentes[["NOME", "TELEFONE"]].head(10).to_dict("records")
+    onboarding_lista = onboarding_pendentes[["NOME", "TELEFONE"]].head(10).to_dict("records")
 
     # ── Resultado final ───────────────────────────────────────────────────────
     return {
