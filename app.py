@@ -219,35 +219,6 @@ def main():
             st.dataframe(df_r, use_container_width=True, hide_index=True)
         else: st.success("Onboarding 100%!")
 
-    # 5. Funnel Analyst Agent Chat
-    st.markdown("---")
-    st.markdown("### 🤖 Sala de Guerra: Inteligência Estratégica")
-    st.caption("Consulte métricas de conversão, picos de venda e diagnósticos de funil em tempo real.")
-
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-
-    # Display chat messages from history
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-    # Chat input
-    if prompt := st.chat_input("Digite sua pergunta aqui..."):
-        # Add user message to history
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        # Generate response
-        with st.chat_message("assistant"):
-            with st.spinner("Analisando dados..."):
-                period = extrair_periodo(prompt)
-                response = analisar_funil(period=period)
-                st.markdown(response)
-        
-        # Add assistant response to history
-        st.session_state.messages.append({"role": "assistant", "content": response})
 
 if __name__ == "__main__":
     main()
