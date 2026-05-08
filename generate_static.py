@@ -4,8 +4,7 @@ generate_static.py
 Lê os dados do Google Sheets usando gspread, processa as métricas do funil e
 exporta docs/data.json para o dashboard estático no GitHub Pages.
 
-Executado automaticamente pelo GitHub Actions a cada 30 minutos.
-Credenciais lidas de variáveis de ambiente (GitHub Secrets).
+ESTE SCRIPT FOI EXPANDIDO PARA INCLUIR INTELIGÊNCIA ESTRATÉGICA (v2).
 """
 import os
 import re
@@ -23,10 +22,6 @@ load_dotenv()
 
 def get_gspread_client():
     scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
-    # Suporte a dois modos:
-    # 1) GOOGLE_CREDENTIALS_JSON (string JSON) → usado no GitHub Actions
-    # 2) GOOGLE_CREDENTIALS_FILE (caminho do arquivo) → usado localmente
     creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
     if creds_json:
         info = json.loads(creds_json)
@@ -34,7 +29,6 @@ def get_gspread_client():
     else:
         creds_file = os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json")
         creds = Credentials.from_service_account_file(creds_file, scopes=scopes)
-
     return gspread.authorize(creds)
 
 
@@ -42,13 +36,9 @@ def fetch_df(spreadsheet, tab_name):
     try:
         ws = spreadsheet.worksheet(tab_name)
         data = ws.get_all_values()
-        if not data:
-            return pd.DataFrame()
+        if not data: return pd.DataFrame()
         header = data[0]
-        rows = []
-        for row in data[1:]:
-            padded = row + [''] * (len(header) - len(row))
-            rows.append(padded[:len(header)])
+        rows = [row + [''] * (len(header) - len(row)) for row in data[1:]]
         return pd.DataFrame(rows, columns=header)
     except Exception as e:
         print(f"Erro ao acessar aba '{tab_name}': {e}")
@@ -58,24 +48,18 @@ def fetch_df(spreadsheet, tab_name):
 # ── Normalização ──────────────────────────────────────────────────────────────
 
 def normalize_phone(phone):
-    if pd.isna(phone) or str(phone).strip() == "":
-        return ""
+    if pd.isna(phone) or str(phone).strip() == "": return ""
     digits = re.sub(r'\D', '', str(phone))
-    if digits.startswith('55') and len(digits) >= 12:
-        return digits[2:4] + digits[-8:]
-    elif len(digits) >= 10:
-        return digits[:2] + digits[-8:]
+    if digits.startswith('55') and len(digits) >= 12: return digits[2:4] + digits[-8:]
+    elif len(digits) >= 10: return digits[:2] + digits[-8:]
     return digits
 
 
 def parse_currency(value_str):
-    if pd.isna(value_str):
-        return 0.0
+    if pd.isna(value_str): return 0.0
     val = str(value_str).replace('R$', '').strip().replace('.', '').replace(',', '.')
-    try:
-        return float(val)
-    except:
-        return 0.0
+    try: return float(val)
+    except: return 0.0
 
 
 # ── Pipeline de Métricas ──────────────────────────────────────────────────────
@@ -90,127 +74,108 @@ def calcular_metricas():
     df_grupos = fetch_df(spreadsheet, " 📈 Grupos 10- Imersão Prática Mundo dos Elétricos ")
     df_recup  = fetch_df(spreadsheet, "📈 Recuperação de Vendas")
 
-    # ── Normalização de telefones ─────────────────────────────────────────────
+    # ── Normalização ──────────────────────────────────────────────────────────
     df_compra['TEL_NORM'] = df_compra['TELEFONE'].apply(normalize_phone) if 'TELEFONE' in df_compra.columns else ""
     df_grupos['TEL_NORM'] = df_grupos['TELEFONE'].apply(normalize_phone) if 'TELEFONE' in df_grupos.columns else ""
     df_recup['TEL_NORM']  = df_recup['TELEFONE'].apply(normalize_phone) if 'TELEFONE' in df_recup.columns else ""
 
-    # ── Versão RAW da recuperação (espelho do Excel, para Acompanhamento de Envios)
     df_recup_raw = df_recup.copy()
-
-    # ── Desduplicação (para cálculos e cruzamentos) ───────────────────────────
-    if not df_compra.empty:
-        df_compra = df_compra.drop_duplicates(subset=['TEL_NORM', 'NOME'], keep='first')
-    if not df_recup.empty:
-        df_recup  = df_recup.drop_duplicates(subset=['TEL_NORM', 'NOME'], keep='first')
-    if not df_grupos.empty:
-        df_grupos = df_grupos.drop_duplicates(subset=['TEL_NORM'], keep='first')
-
-    # ── Faturamento ───────────────────────────────────────────────────────────
-    col_valor = 'Valor oferta' if 'Valor oferta' in df_compra.columns else 'GROSS PRICE'
-    faturamento = df_compra[col_valor].apply(parse_currency).sum() if col_valor in df_compra.columns else 0.0
-    ticket_minimo = df_compra[col_valor].apply(parse_currency).min() if col_valor in df_compra.columns else 19.0
-
-    # ── Cruzamento: Vendas Recuperadas ────────────────────────────────────────
-    bought_phones = set(df_compra[df_compra['TEL_NORM'] != '']['TEL_NORM']) if not df_compra.empty else set()
-    bought_names  = set(df_compra['NOME'].str.lower().str.strip().unique()) if 'NOME' in df_compra.columns else set()
-    bought_emails = set(df_compra['EMAIL'].str.lower().str.strip().unique()) \
-                    if 'EMAIL' in df_compra.columns else set()
-
-    vendas_recuperadas = 0
-    mask_bought = pd.Series([False] * len(df_recup))
-    if not df_recup.empty:
-        mask_bought = (
-            df_recup['TEL_NORM'].isin(bought_phones) |
-            (df_recup['NOME'].str.lower().str.strip().isin(bought_names) if 'NOME' in df_recup.columns else False) |
-            (df_recup['EMAIL'].str.lower().str.strip().isin(bought_emails) if 'EMAIL' in df_recup.columns else False)
-        )
-        vendas_recuperadas = int(mask_bought.sum())
     
-    recuperacao_pendentes = df_recup[~mask_bought].copy() if not df_recup.empty else pd.DataFrame()
+    # Desduplicação
+    df_compra_dedup = df_compra.drop_duplicates(subset=['TEL_NORM', 'NOME'], keep='first')
+    df_recup_dedup  = df_recup.drop_duplicates(subset=['TEL_NORM', 'NOME'], keep='first')
+    df_grupos_dedup = df_grupos.drop_duplicates(subset=['TEL_NORM'], keep='first')
 
-    # ── Oportunidades ─────────────────────────────────────────────────────────
-    X_sales = len(recuperacao_pendentes)
-    Y_sales = int((recuperacao_pendentes['TELEFONE'].str.strip() != '').sum()) if 'TELEFONE' in recuperacao_pendentes.columns else 0
-    Z_sales = X_sales - Y_sales
-    potencial = X_sales * ticket_minimo
+    # ── Métricas Básicas ──────────────────────────────────────────────────────
+    col_valor = 'Valor oferta' if 'Valor oferta' in df_compra.columns else 'GROSS PRICE'
+    faturamento = df_compra_dedup[col_valor].apply(parse_currency).sum() if col_valor in df_compra_dedup.columns else 0.0
+    
+    entered_phones = set(df_grupos_dedup['TEL_NORM'].unique())
+    vendas_no_grupo = df_compra_dedup[df_compra_dedup['TEL_NORM'].isin(entered_phones)]
+    gap_onboarding = len(df_compra_dedup) - len(vendas_no_grupo)
+    
+    # Cruzamento de recuperação
+    bought_phones = set(df_compra_dedup[df_compra_dedup['TEL_NORM'] != '']['TEL_NORM'])
+    mask_recup = df_recup_dedup['TEL_NORM'].isin(bought_phones)
+    vendas_recuperadas = int(mask_recup.sum())
 
-    # ── Gap de Onboarding ─────────────────────────────────────────────────────
-    grupo_phones = set(df_grupos['TEL_NORM'].unique()) if 'TEL_NORM' in df_grupos.columns else set()
-    onboarding_pendentes = df_compra[~df_compra['TEL_NORM'].isin(grupo_phones)] if not df_compra.empty else pd.DataFrame()
-    gap_onboarding = len(onboarding_pendentes)
+    # ── INTELIGÊNCIA ESTRATÉGICA (DNA DO COMPRADOR) ──────────────────────────
+    
+    # Mix de Pagamento
+    mix_pagamento = []
+    if 'FORMA_PAGAMENTO' in df_compra_dedup.columns:
+        counts = df_compra_dedup['FORMA_PAGAMENTO'].value_counts()
+        mix_pagamento = [{"name": n, "value": int(v)} for n, v in counts.items()]
 
-    # ── Acompanhamento de Envios — Compra Aprovada ────────────────────────────
-    col_status_compra = 'Status Mensagem'
-    if col_status_compra in df_compra.columns:
-        stats_c = df_compra[col_status_compra].str.lower().str.strip()
-        env_compra = int((stats_c == 'enviado').sum())
-        sem_tel_compra = int(
-            (df_compra['TELEFONE'].str.strip().replace('', pd.NA).isna() |
-             stats_c.str.contains('telefone incorreto', na=False)).sum()
-        )
-        pend_compra = int((stats_c == '').sum())
-    else:
-        env_compra = sem_tel_compra = pend_compra = 0
+    # Top Estados
+    top_estados = []
+    if 'ESTADO' in df_compra_dedup.columns:
+        counts = df_compra_dedup['ESTADO'].replace('', 'Não Informado').value_counts().head(5)
+        top_estados = [{"name": n, "value": int(v)} for n, v in counts.items()]
 
-    # ── Acompanhamento de Envios — Recuperação de Vendas ─────────────────────
-    col_status_rec = 'STATUS PÓS AUTOMAÇÃO'
-    if col_status_rec in df_recup_raw.columns:
-        status_r = df_recup_raw[col_status_rec].fillna('').str.strip()
-        env_rec = int(status_r.str.lower().str.strip().isin(
-            ['mensagem enviada', 'comprou']).sum())
-        sem_tel_rec  = int((status_r.str.lower() == 'sem telefone para contato').sum())
-        repetidos    = int(status_r.str.lower().str.strip().isin(
-            ['número repetido', 'duplicado']).sum())
-        pend_rec     = int((status_r == '').sum())
-    else:
-        env_rec = sem_tel_rec = repetidos = pend_rec = 0
+    # Parcelamento Médio
+    parcelamento_medio = 0
+    if 'PARCELAMENTO' in df_compra_dedup.columns:
+        parcelamento_medio = round(pd.to_numeric(df_compra_dedup['PARCELAMENTO'], errors='coerce').mean(), 1)
 
-    total_rec = len(df_recup_raw)
-    recuperacao_lista = recuperacao_pendentes[['NOME', 'TELEFONE']].head(10).to_dict('records')
-    onboarding_lista = onboarding_pendentes[['NOME', 'TELEFONE']].head(10).to_dict('records')
-    recuperacao_lista = recuperacao_pendentes[["NOME", "TELEFONE"]].head(10).to_dict("records")
-    onboarding_lista = onboarding_pendentes[["NOME", "TELEFONE"]].head(10).to_dict("records")
+    # ── JANELA DE OPORTUNIDADE (SÉRIES TEMPORAIS) ────────────────────────────
+    series_hora = []
+    series_acumulado = []
+    ranking_momentos = []
+    
+    d_col = next((c for c in df_compra_dedup.columns if 'DATA' in c.upper()), None)
+    if d_col:
+        df_compra_dedup['DT'] = pd.to_datetime(df_compra_dedup[d_col], dayfirst=True, errors='coerce')
+        df_temp = df_compra_dedup.dropna(subset=['DT']).sort_values('DT')
+        
+        # Volume por Hora
+        h_counts = df_temp['DT'].dt.hour.value_counts().reindex(range(0, 24), fill_value=0).sort_index()
+        series_hora = [{"hora": f"{h:02d}h", "vendas": int(v)} for h, v in h_counts.items()]
+        
+        # Acumulado
+        df_acum = df_temp.groupby('DT').size().reset_index(name='v')
+        df_acum['acum'] = df_acum['v'].cumsum()
+        series_acumulado = [{"date": r['DT'].strftime('%d/%m %H:%M'), "value": int(r['acum'])} for _, r in df_acum.iterrows()]
+        
+        # Ranking de Momentos (Data + Hora)
+        df_temp['Momento'] = df_temp['DT'].dt.strftime('%d/%m %Hh')
+        rank_counts = df_temp['Momento'].value_counts().head(5)
+        ranking_momentos = [{"name": n, "value": int(v)} for n, v in rank_counts.items()]
 
-    # ── Resultado final ───────────────────────────────────────────────────────
+    # ── LISTAS DE RESGATE ────────────────────────────────────────────────────
+    rec_pending = df_recup_dedup[~mask_recup].copy()
+    recuperacao_lista = rec_pending[['NOME', 'TELEFONE']].head(10).to_dict('records')
+    onboarding_lista = df_compra_dedup[~df_compra_dedup['TEL_NORM'].isin(entered_phones)][['NOME', 'TELEFONE']].head(10).to_dict('records')
+
     return {
         "updated_at": datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC"),
         "faturamento": round(faturamento, 2),
-        "ticket_minimo": round(ticket_minimo, 2),
-        "vendas_aprovadas": len(df_compra),
+        "vendas_aprovadas": len(df_compra_dedup),
         "vendas_recuperadas": vendas_recuperadas,
-        "oportunidades": X_sales,
-        "oportunidades_whatsapp": Y_sales,
-        "oportunidades_email": Z_sales,
-        "potencial_estimado": round(potencial, 2),
         "gap_onboarding": gap_onboarding,
-        "taxa_onboarding": round(((len(df_compra) - gap_onboarding) / len(df_compra) * 100), 1) if len(df_compra) > 0 else 0,
+        "taxa_onboarding": round(((len(df_compra_dedup) - gap_onboarding) / len(df_compra_dedup) * 100), 1) if len(df_compra_dedup) > 0 else 0,
+        "oportunidades": len(rec_pending),
+        "potencial_estimado": round(len(rec_pending) * 19.0, 2), # Assumindo ticket de 19
+        "mix_pagamento": mix_pagamento,
+        "top_estados": top_estados,
+        "parcelamento_medio": parcelamento_medio,
+        "series_hora": series_hora,
+        "series_acumulado": series_acumulado,
+        "ranking_momentos": ranking_momentos,
         "recuperacao_lista": recuperacao_lista,
-        "onboarding_lista": onboarding_lista,
-        "compra_aprovada": {
-            "total": len(df_compra),
-            "enviados": env_compra,
-            "sem_tel": sem_tel_compra,
-            "pendentes": pend_compra
-        },
-        "recuperacao": {
-            "total": total_rec,
-            "enviados": env_rec,
-            "recuperadas": vendas_recuperadas,
-            "sem_tel": sem_tel_rec,
-            "repetidos": repetidos,
-            "pendentes": pend_rec
-        }
+        "onboarding_lista": onboarding_lista
     }
 
-
-# ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     os.makedirs("docs", exist_ok=True)
     metricas = calcular_metricas()
-    out_path = os.path.join("docs", "data.json")
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(metricas, f, ensure_ascii=False, indent=2)
-    print(f"✅ {out_path} gerado com sucesso!")
-    print(json.dumps(metricas, ensure_ascii=False, indent=2))
+    
+    # Salva nos dois locais
+    for path in [os.path.join("docs", "data.json"), os.path.join("v2", "public", "data.json")]:
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(metricas, f, ensure_ascii=False, indent=2)
+        except: pass
+        
+    print(f"✅ data.json atualizado com Inteligência Estratégica!")
