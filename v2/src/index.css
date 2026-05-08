@@ -1,35 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-black: #050505;
-  --color-brand-gold: #FFD700;
-  --color-brand-gold-muted: rgba(255, 215, 0, 0.1);
-  --color-brand-success: #00E676;
+  --color-brand-bg: #0d0d1f;
+  --color-brand-card: #15152e;
+  --color-brand-accent: #6366f1;
+  --color-brand-purple: #8b5cf6;
+  --color-brand-blue: #0ea5e9;
+  --color-brand-teal: #14b8a6;
+  --color-brand-pink: #d946ef;
+  --color-brand-gold: #fccb00;
+  --color-brand-success: #22c55e;
 }
 
-:root {
-  background-color: var(--color-brand-black);
-  color: white;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+@layer base {
+  body {
+    @apply bg-brand-bg text-white font-sans antialiased;
+  }
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
+@layer components {
+  .glass-card {
+    @apply bg-brand-card border border-white/5 rounded-[2rem] shadow-2xl;
+  }
+  
+  .glass-sidebar {
+    @apply bg-[#090916] border-r border-white/5;
+  }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #111;
-}
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  .nav-item-active {
+    @apply bg-brand-accent/20 border-l-4 border-brand-accent text-white shadow-[0_0_20px_rgba(99,102,241,0.2)];
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-accent to-brand-purple;
+  }
 }
