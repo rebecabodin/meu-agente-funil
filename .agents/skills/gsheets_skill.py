@@ -1,42 +1,72 @@
 import os
 import pandas as pd
 import re
-from googleapiclient.discovery import build
+import gspread
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from datetime import date, timedelta, datetime
+
+# Configuração de path para acessar o diretório raiz
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, '../..'))
+if ROOT_DIR not in sys.path:
+    sys.path.append(ROOT_DIR)
+
 from data_utils import calcular_metricas_grupo
 
 load_dotenv()
 
-def get_sheets_service():
-    """Autentica e retorna o serviço da API do Google Sheets."""
-    scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    creds = Credentials.from_service_account_file('credentials.json', scopes=scopes)
-    return build('sheets', 'v4', credentials=creds)
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-def fetch_df(range_name):
-    """Busca dados de uma aba e retorna como DataFrame."""
+# ── Autenticação via gspread ──────────────────────────────────────────────────
+
+def get_gspread_client():
+    """Autentica e retorna o cliente gspread."""
+    # Tenta importar streamlit para usar st.secrets se estiver rodando no Streamlit Cloud
     try:
-        service = get_sheets_service()
+        import streamlit as st
+        creds = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"], scopes=SCOPES)
+    except (ImportError, KeyError, AttributeError):
+        # Fallback local
+        creds_file = os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json")
+        creds = Credentials.from_service_account_file(creds_file, scopes=SCOPES)
+    
+    return gspread.authorize(creds)
+
+
+def fetch_df(tab_name):
+    """Busca dados de uma aba via gspread e retorna como DataFrame."""
+    try:
+        client = get_gspread_client()
         sheet_id = os.getenv("GOOGLE_SHEET_ID")
-        result = service.spreadsheets().values().get(
-            spreadsheetId=sheet_id, range=range_name).execute()
-        values = result.get('values', [])
-        if not values: return pd.DataFrame()
+        # Fallback para st.secrets se rodando no Streamlit
+        if not sheet_id:
+            try:
+                import streamlit as st
+                sheet_id = st.secrets["GOOGLE_SHEET_ID"]
+            except:
+                pass
         
-        header = values[0]
-        data = []
-        max_cols = len(header)
-        for row in values[1:]:
-            padded = row + [''] * (max_cols - len(row))
-            data.append(padded)
-        return pd.DataFrame(data, columns=header)
+        spreadsheet = client.open_by_key(sheet_id)
+        ws = spreadsheet.worksheet(tab_name)
+        data = ws.get_all_values()
+        
+        if not data:
+            return pd.DataFrame()
+            
+        header = data[0]
+        rows = []
+        for row in data[1:]:
+            padded = row + [''] * (len(header) - len(row))
+            rows.append(padded[:len(header)])
+            
+        return pd.DataFrame(rows, columns=header)
     except Exception as e:
-        print(f"Erro ao acessar aba {range_name}: {e}")
+        print(f"Erro ao acessar aba '{tab_name}': {e}")
         return pd.DataFrame()
+
 
 def normalize_phone(phone):
     if pd.isna(phone) or str(phone).strip() == "": return ""
@@ -45,7 +75,6 @@ def normalize_phone(phone):
     elif len(digits) >= 10: return digits[:2] + digits[-8:]
     return digits
 
-from datetime import date, timedelta, datetime
 
 def _parse_period(period: str) -> tuple[date, date]:
     """Converte string de período em objetos date."""
@@ -71,9 +100,9 @@ def _parse_period(period: str) -> tuple[date, date]:
 
 def get_sheets_analytics(period: str = "ontem"):
     """Realiza o cruzamento de dados filtrado por período e análise de picos."""
-    df_compra = fetch_df("'📈 Compra Aprovada'!A:Z")
-    df_grupos = fetch_df("' 📈 Grupos 10- Imersão Prática Mundo dos Elétricos '!A:Z")
-    df_recup = fetch_df("'📈 Recuperação de Vendas'!A:Z")
+    df_compra = fetch_df('📈 Compra Aprovada')
+    df_grupos = fetch_df(' 📈 Grupos 10- Imersão Prática Mundo dos Elétricos ')
+    df_recup = fetch_df('📈 Recuperação de Vendas')
 
     if df_compra.empty:
         return {"erro": "Não foi possível carregar os dados das planilhas."}
@@ -81,11 +110,12 @@ def get_sheets_analytics(period: str = "ontem"):
     # Identificar coluna de data
     date_col = next((c for c in df_compra.columns if 'DATA' in c.upper()), None)
     
+    start_date, end_date = _parse_period(period)
+    
     if date_col:
         df_compra['DT_OBJ'] = pd.to_datetime(df_compra[date_col], dayfirst=True, errors='coerce')
         
         # Filtragem por período
-        start_date, end_date = _parse_period(period)
         if start_date:
             mask = (df_compra['DT_OBJ'].dt.date >= start_date) & (df_compra['DT_OBJ'].dt.date <= end_date)
             df_compra_periodo = df_compra[mask].copy()
