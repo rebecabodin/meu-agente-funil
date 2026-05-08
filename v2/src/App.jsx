@@ -16,7 +16,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('operacional'); // 'operacional' ou 'estrategico'
 
   useEffect(() => {
-    const dataPath = import.meta.env.DEV ? './data.json' : '../data.json';
+    // Busca o JSON na mesma pasta do dashboard (v2)
+    const dataPath = './data.json';
     fetch(dataPath)
       .then(res => res.json())
       .then(json => {
