@@ -3,7 +3,11 @@ import os
 import pandas as pd
 import re
 import altair as alt
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 from data_utils import load_data, normalize_phone, parse_currency, calcular_metricas_grupo
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
@@ -26,7 +30,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-load_dotenv()
 
 
 

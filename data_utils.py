@@ -2,11 +2,14 @@ import os
 import re
 import pandas as pd
 import streamlit as st
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 
-load_dotenv()
 
 @st.cache_resource
 def get_sheets_service():
