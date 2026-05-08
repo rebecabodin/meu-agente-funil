@@ -23,7 +23,6 @@ docs/data.json
 
 # ── Logs (gerados em runtime, podem conter dados de clientes) ─────────────────
 *.log
-*.txt
 app_log.txt
 insights_log.txt
 
