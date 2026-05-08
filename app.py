@@ -9,8 +9,6 @@ try:
 except ImportError:
     pass
 from data_utils import load_data, normalize_phone, parse_currency, calcular_metricas_grupo
-from googleapiclient.discovery import build
-from google.oauth2.service_account import Credentials
 from agent import analisar_funil, extrair_periodo
 
 # Page Configuration
