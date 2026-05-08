@@ -5,7 +5,9 @@ import {
   PieChart,
   Bell,
   ChevronRight,
-  Info
+  Info,
+  ShieldCheck,
+  Search
 } from 'lucide-react';
 import { OperationalView } from './components/OperationalView';
 import { StrategicView } from './components/StrategicView';
@@ -13,10 +15,9 @@ import { StrategicView } from './components/StrategicView';
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('operacional'); // 'operacional' ou 'estrategico'
+  const [activeTab, setActiveTab] = useState('operacional');
 
   useEffect(() => {
-    // Busca o JSON com cache bust para garantir dados novos
     const dataPath = './data.json?t=' + new Date().getTime();
     fetch(dataPath)
       .then(res => res.json())
@@ -32,8 +33,12 @@ function App() {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen bg-brand-black flex items-center justify-center">
-        <RefreshCcw className="text-brand-gold animate-spin" size={48} />
+      <div className="h-screen w-screen bg-brand-black flex flex-col items-center justify-center gap-6">
+        <div className="relative">
+          <RefreshCcw className="text-brand-gold animate-spin" size={64} />
+          <div className="absolute inset-0 bg-brand-gold blur-3xl opacity-20 animate-pulse" />
+        </div>
+        <p className="text-brand-gold font-bold tracking-[0.3em] uppercase text-xs animate-pulse">Sincronizando Sala de Guerra...</p>
       </div>
     );
   }
@@ -48,100 +53,116 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-black text-white flex">
+    <div className="min-h-screen bg-brand-black text-white flex font-sans selection:bg-brand-gold selection:text-black">
+      
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/5 flex flex-col p-6 gap-8 hidden md:flex">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 bg-brand-gold rounded-xl flex items-center justify-center text-black font-bold text-xl shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+      <aside className="w-80 border-r border-white/5 flex flex-col p-8 gap-10 hidden xl:flex sticky top-0 h-screen">
+        <div className="flex items-center gap-4 px-2">
+          <div className="w-12 h-12 bg-brand-gold rounded-2xl flex items-center justify-center text-black font-black text-2xl shadow-[0_10px_30px_rgba(252,203,0,0.3)]">
             M
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-lg leading-tight">Mundo Elétrico</span>
-            <span className="text-[10px] text-brand-gold uppercase tracking-[0.2em] font-bold">Analytics v2</span>
+            <span className="font-black text-xl leading-tight tracking-tighter uppercase italic">MUNDO ELÉTRICO</span>
+            <span className="text-[10px] text-brand-gold uppercase tracking-[0.3em] font-black">ANALYTICS v2</span>
           </div>
         </div>
 
-        <nav className="flex flex-col gap-2">
-          <p className="text-[10px] text-white/30 uppercase tracking-widest font-bold px-4 mb-2 mt-4">Menu Principal</p>
+        <nav className="flex flex-col gap-3">
+          <p className="text-[10px] text-white/20 uppercase tracking-[0.4em] font-black px-4 mb-2">Comando</p>
           
           <button 
             onClick={() => setActiveTab('operacional')}
-            className={`flex items-center justify-between px-4 py-4 rounded-2xl font-medium transition-all group ${
+            className={`flex items-center justify-between px-6 py-5 rounded-[1.5rem] font-bold transition-all duration-300 group ${
               activeTab === 'operacional' 
-              ? 'bg-brand-gold text-black shadow-[0_10px_20px_rgba(255,215,0,0.15)]' 
-              : 'text-white/40 hover:bg-white/5 hover:text-white'
+              ? 'bg-brand-gold text-black shadow-[0_15px_30px_rgba(252,203,0,0.15)] scale-105' 
+              : 'text-white/30 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <LayoutDashboard size={20} /> Dashboard Estrategista
+            <div className="flex items-center gap-4">
+              <LayoutDashboard size={22} strokeWidth={2.5} /> Dashboard Estrategista
             </div>
-            {activeTab === 'operacional' && <ChevronRight size={16} />}
+            {activeTab === 'operacional' && <ChevronRight size={18} strokeWidth={3} />}
           </button>
 
           <button 
             onClick={() => setActiveTab('estrategico')}
-            className={`flex items-center justify-between px-4 py-4 rounded-2xl font-medium transition-all group ${
+            className={`flex items-center justify-between px-6 py-5 rounded-[1.5rem] font-bold transition-all duration-300 group ${
               activeTab === 'estrategico' 
-              ? 'bg-brand-gold text-black shadow-[0_10px_20px_rgba(255,215,0,0.15)]' 
-              : 'text-white/40 hover:bg-white/5 hover:text-white'
+              ? 'bg-brand-gold text-black shadow-[0_15px_30px_rgba(252,203,0,0.15)] scale-105' 
+              : 'text-white/30 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <PieChart size={20} /> Inteligência Estratégica
+            <div className="flex items-center gap-4">
+              <PieChart size={22} strokeWidth={2.5} /> Inteligência Estratégica
             </div>
-            {activeTab === 'estrategico' && <ChevronRight size={16} />}
+            {activeTab === 'estrategico' && <ChevronRight size={18} strokeWidth={3} />}
           </button>
         </nav>
 
-        <div className="mt-auto bg-[#121212] p-5 rounded-3xl border border-white/5 relative overflow-hidden group">
-          <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-brand-gold/5 rounded-full blur-2xl group-hover:bg-brand-gold/10 transition-all" />
-          <p className="text-[10px] text-white/30 uppercase font-bold mb-3">Status do Lançamento</p>
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-brand-success rounded-full animate-pulse" />
-            <span className="text-sm font-bold text-white/80">Sincronizado</span>
+        <div className="mt-auto relative group">
+          <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] p-6 rounded-[2rem] border border-white/5 relative z-10">
+            <ShieldCheck className="text-brand-gold mb-3" size={24} />
+            <p className="text-[10px] text-white/20 uppercase font-black mb-1">Status de Conexão</p>
+            <p className="text-sm font-black text-white/90 mb-4">Planilha Ativa</p>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-brand-success rounded-full animate-pulse shadow-[0_0_10px_#00FF00]" />
+              <span className="text-[10px] font-bold text-brand-success uppercase tracking-widest">Sincronizado</span>
+            </div>
           </div>
+          <div className="absolute inset-0 bg-brand-gold/5 blur-3xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-10 overflow-y-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-          <div>
-            <h1 className="text-3xl font-black mb-1 tracking-tight">
+      <main className="flex-1 p-6 lg:p-12 overflow-y-auto overflow-x-hidden">
+        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16">
+          <div className="animate-in slide-in-from-left duration-700">
+            <h1 className="text-4xl lg:text-5xl font-black mb-2 tracking-tighter uppercase italic">
               {activeTab === 'operacional' ? 'Dashboard Estrategista' : 'Inteligência Estratégica'}
             </h1>
-            <div className="flex items-center gap-2 text-white/40 text-xs">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-              Sincronizado via Google Sheets em {data.updated_at}
+            <div className="flex items-center gap-3 text-white/30 text-xs font-bold uppercase tracking-widest">
+              <span className="w-2 h-2 rounded-full bg-brand-gold shadow-[0_0_8px_#FFD700]" />
+              Última sincronização: {data.updated_at}
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="hidden lg:flex flex-col items-end mr-2">
-              <span className="text-xs font-bold text-white/60">André / Mundo Elétrico</span>
-              <span className="text-[10px] text-brand-gold uppercase font-bold">Admin</span>
+          <div className="flex items-center gap-6 animate-in slide-in-from-right duration-700">
+            <div className="relative hidden sm:block">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+              <input 
+                type="text" 
+                placeholder="Buscar lead ou métrica..." 
+                className="bg-[#121212] border border-white/5 rounded-2xl py-3 pl-12 pr-6 text-sm focus:outline-none focus:border-brand-gold/30 transition-all w-64"
+              />
             </div>
-            <button className="p-3 bg-[#121212] border border-white/5 rounded-2xl text-white/60 hover:text-white transition-all relative group">
-              <Bell size={20} />
-              <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-brand-black group-hover:scale-125 transition-all" />
-            </button>
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-gold to-yellow-600 border-2 border-white/10 shadow-lg shadow-brand-gold/10" />
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-yellow-700 flex items-center justify-center border-2 border-white/10 shadow-2xl shadow-brand-gold/20">
+                <span className="font-black text-black">AB</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-black text-white/90">André Bodin</span>
+                <span className="text-[10px] text-brand-gold font-bold uppercase tracking-widest">Estrategista Chef</span>
+              </div>
+            </div>
           </div>
         </header>
 
-        {/* View Switcher */}
+        {/* Dynamic View */}
         {activeTab === 'operacional' ? (
           <OperationalView data={data} />
         ) : (
           <StrategicView data={data} />
         )}
 
-        <footer className="mt-20 py-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
-          <p className="text-xs">© 2026 Mundo dos Elétricos - Inteligência de Funil</p>
-          <div className="flex gap-6 text-[10px] font-bold uppercase tracking-widest">
-            <span className="cursor-pointer hover:text-brand-gold">Suporte</span>
-            <span className="cursor-pointer hover:text-brand-gold">Documentação</span>
-            <span className="cursor-pointer hover:text-brand-gold">Logs</span>
+        <footer className="mt-32 py-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-20 hover:opacity-100 transition-all duration-500">
+          <div className="flex flex-col items-center md:items-start gap-1">
+            <p className="text-xs font-bold tracking-tighter uppercase italic">MUNDO DOS ELÉTRICOS</p>
+            <p className="text-[10px] text-white/40">Inteligência de Lançamentos v2.8.4</p>
+          </div>
+          <div className="flex gap-10 text-[10px] font-black uppercase tracking-[0.2em]">
+            <span className="cursor-pointer hover:text-brand-gold transition-colors">Segurança</span>
+            <span className="cursor-pointer hover:text-brand-gold transition-colors">Audit Logs</span>
+            <span className="cursor-pointer hover:text-brand-gold transition-colors">API Status</span>
           </div>
         </footer>
       </main>

@@ -1,16 +1,32 @@
 {
-  "updated_at": "08/05/2026 01:59 UTC",
-  "faturamento": 4381.0,
-  "vendas_aprovadas": 213,
-  "vendas_recuperadas": 16,
-  "gap_onboarding": 47,
-  "taxa_onboarding": 77.9,
-  "oportunidades": 118,
-  "potencial_estimado": 2242.0,
+  "updated_at": "08/05/2026 02:10 UTC",
+  "faturamento": 4407.0,
+  "vendas_aprovadas": 214,
+  "vendas_recuperadas": 22,
+  "taxa_onboarding": 78.04,
+  "oportunidades": 112,
+  "potencial_estimado": 2128.0,
+  "status_compra": {
+    "enviados": 0,
+    "pendentes": 214,
+    "sem_tel": 0
+  },
+  "status_recup": {
+    "total": 134,
+    "enviados": 0,
+    "sem_tel": 39,
+    "pendentes": 95,
+    "recuperadas": 22
+  },
+  "gargalos": {
+    "ghost_leads": 112,
+    "only_email": 39,
+    "onboarding_gap": 47
+  },
   "mix_pagamento": [
     {
       "name": "PIX",
-      "value": 194
+      "value": 195
     },
     {
       "name": "Cartão de Crédito",
@@ -139,7 +155,7 @@
     },
     {
       "hora": "23h",
-      "vendas": 4
+      "vendas": 5
     }
   ],
   "series_acumulado": [
@@ -982,6 +998,10 @@
     {
       "date": "07/05 22:37",
       "value": 213
+    },
+    {
+      "date": "07/05 23:00",
+      "value": 214
     }
   ],
   "ranking_momentos": [
