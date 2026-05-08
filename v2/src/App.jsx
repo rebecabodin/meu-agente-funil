@@ -9,7 +9,8 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`./data.json?t=${new Date().getTime()}`)
+    // Carrega o JSON da mesma pasta onde está o app
+    fetch(`data.json?t=${new Date().getTime()}`)
       .then(res => res.json())
       .then(json => {
         setData(json);

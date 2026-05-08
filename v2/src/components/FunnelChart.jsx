@@ -3,32 +3,33 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 
 export const FunnelChart = ({ data }) => {
   return (
-    <div className="bg-[#121212] border border-white/5 p-6 rounded-2xl h-[400px]">
-      <h3 className="text-white/80 text-lg font-semibold mb-6">Pipeline de Conversão</h3>
-      <ResponsiveContainer width="100%" height="90%">
-        <BarChart data={data} layout="vertical" margin={{ left: 50 }}>
+    <div className="w-full h-full min-h-[250px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} layout="vertical" margin={{ left: 80, right: 40, top: 0, bottom: 0 }}>
           <XAxis type="number" hide />
           <YAxis 
             dataKey="name" 
             type="category" 
             axisLine={false} 
             tickLine={false}
-            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
+            tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
+            width={70}
           />
           <Tooltip 
-            cursor={{ fill: 'transparent' }}
+            cursor={{ fill: 'rgba(255,255,255,0.03)' }}
             contentStyle={{ 
-              backgroundColor: '#181818', 
+              backgroundColor: '#0f172a', 
               border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
+              borderRadius: '12px',
+              fontSize: '10px',
               color: '#fff'
             }}
           />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={40}>
+          <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={24}>
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={index === 0 ? '#FFD700' : index === data.length - 1 ? '#00E676' : '#FFD70088'} 
+                fill={index === 0 ? '#38bdf8' : '#1e293b'} 
               />
             ))}
           </Bar>
