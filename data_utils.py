@@ -11,7 +11,14 @@ load_dotenv()
 @st.cache_resource
 def get_sheets_service():
     scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    creds = Credentials.from_service_account_file('credentials.json', scopes=scopes)
+    try:
+        # ✅ Streamlit Cloud: lê credenciais do st.secrets
+        creds = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"], scopes=scopes)
+    except (KeyError, FileNotFoundError):
+        # ✅ Local: lê do arquivo credentials.json
+        creds_file = os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json")
+        creds = Credentials.from_service_account_file(creds_file, scopes=scopes)
     return build('sheets', 'v4', credentials=creds)
 
 @st.cache_data(ttl=5)
